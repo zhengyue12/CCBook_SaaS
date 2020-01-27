@@ -1,0 +1,23 @@
+{	
+	"title": "云计算SaaS部分",
+    "description": "SaaS部分相关答案",
+    "author": "zheng",
+    "language": "zh-hans",
+    "root": ".",
+	"plugins": ["edit-link",
+		"github-buttons"],
+    "pluginsConfig": {
+            "edit-link": {
+                "base": "https://github.com/USER/REPO/edit/BRANCH/path/to/book",
+                "label": "编辑此页"
+            },
+    "github-buttons": {
+      "buttons": [{
+        "user": "zhengyue12",
+        "repo": "",
+        "type": "star",
+        "size": "small"
+      }]
+    }
+    }
+}
