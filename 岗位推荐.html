@@ -128,7 +128,20 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.2.1" data-path="数据爬取.html">
+        <li class="chapter " data-level="1.2.1" data-path="Hbase建表.html">
+            
+                <a href="Hbase建表.html">
+            
+                    
+                    Hbase建表
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="数据爬取.html">
             
                 <a href="数据爬取.html">
             
@@ -141,7 +154,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.2" data-path="数据清洗.html">
+        <li class="chapter " data-level="1.2.3" data-path="数据清洗.html">
             
                 <a href="数据清洗.html">
             
@@ -154,7 +167,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.3" data-path="岗位聚类.html">
+        <li class="chapter " data-level="1.2.4" data-path="岗位聚类.html">
             
                 <a href="岗位聚类.html">
             
@@ -167,7 +180,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.2.4" data-path="岗位推荐.html">
+        <li class="chapter active" data-level="1.2.5" data-path="岗位推荐.html">
             
                 <a href="岗位推荐.html">
             
@@ -180,7 +193,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.5" data-path="岗位分级聚类.html">
+        <li class="chapter " data-level="1.2.6" data-path="岗位分级聚类.html">
             
                 <a href="岗位分级聚类.html">
             
@@ -288,7 +301,154 @@
     
                                 <section class="normal markdown-section">
                                 
-                                
+                                <h4 id="&#x5728;xueqing-client&#x9879;&#x76EE;&#x4E2D;&#x7684;jytjhtml&#x4E2D;&#x6DFB;&#x52A0;&#x5982;&#x4E0B;&#x4EE3;&#x7801;">&#x5728;xueqing-client&#x9879;&#x76EE;&#x4E2D;&#x7684;jytj.html&#x4E2D;&#x6DFB;&#x52A0;&#x5982;&#x4E0B;&#x4EE3;&#x7801;</h4>
+<pre><code class="lang-html">    //&#x904D;&#x5386;&#x8BE5;&#x6570;&#x7EC4;&#x53EF;&#x4EE5;&#x83B7;&#x53D6;&#x6240;&#x6709;&#x503C;  
+     var html=&quot;&quot;;
+     var s=&quot;&quot;; //&#x6DFB;&#x52A0;&#x90E8;&#x5206;
+     var datas1=[];
+     var datas2=[];
+     if(key.size==0){
+         alert(&quot;&#x8BF7;&#x9009;&#x62E9;&#x6280;&#x80FD;&quot;);
+            return false;
+    &#x2026;&#x2026;&#x2026;&#x2026;
+
+    $.ajax({
+        url : &quot;${request.contextPath}/learning/getjytj&quot;,
+        type : &quot;post&quot;,
+        data : {
+            html : html,
+            s : s  //&#x6DFB;&#x52A0;&#x90E8;&#x5206;
+        },
+</code></pre>
+<h4 id="leanrningcontroller&#x7C7B;&#x4E2D;&#x4FEE;&#x6539;&#x90E8;&#x5206;&#x4EE3;&#x7801;">LeanrningController&#x7C7B;&#x4E2D;&#x4FEE;&#x6539;&#x90E8;&#x5206;&#x4EE3;&#x7801;</h4>
+<pre><code class="lang-java"><span class="hljs-comment">/**
+     * &#x5C31;&#x4E1A;&#x63A8;&#x8350;&#x67E5;&#x8BE2;
+     * 
+     * <span class="hljs-doctag">@return</span>
+     */</span>
+    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">&quot;/getjytj&quot;</span>)
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getJytj</span><span class="hljs-params">(HttpServletRequest request)</span> </span>{
+        String html = request.getParameter(<span class="hljs-string">&quot;html&quot;</span>);
+        String[] skill = html.split(<span class="hljs-string">&quot;,&quot;</span>);
+        String s = request.getParameter(<span class="hljs-string">&quot;s&quot;</span>);
+        String[] weight = s.split(<span class="hljs-string">&quot;,&quot;</span>);
+        Map&lt;String, Object&gt; msp = jobAnalysisReposity.getjytj(mongoClient, skill, weight, <span class="hljs-number">3</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MessageBean(<span class="hljs-keyword">true</span>, msp);
+    }
+</code></pre>
+<h4 id="jobanalysisreposityjava">JobAnalysisReposity.java</h4>
+<pre><code class="lang-java">    <span class="hljs-function"><span class="hljs-keyword">public</span> Map&lt;String, Object&gt; <span class="hljs-title">getjytj</span><span class="hljs-params">(MongoClient mongoClient, String[] skills, String[] weights, <span class="hljs-keyword">int</span> number)</span> </span>{
+        Map&lt;String, Object&gt; map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+        ArrayList&lt;String&gt; allSkills = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        List&lt;Map&lt;String, Object&gt;&gt; allJobs = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        getAllSKills(allSkills, skills);
+        MongoCursor&lt;Document&gt; iterator = mongoClient.getDatabase(<span class="hljs-string">&quot;employ&quot;</span>).getCollection(<span class="hljs-string">&quot;job&quot;</span>).find().iterator();
+        <span class="hljs-keyword">while</span> (iterator.hasNext()) {
+            List&lt;Document&gt; document = (List&lt;Document&gt;) iterator.next().get(<span class="hljs-string">&quot;jobs&quot;</span>);
+            <span class="hljs-keyword">for</span> (Document doc : document) {
+                Map&lt;String, Object&gt; job = <span class="hljs-keyword">new</span> HashMap&lt;String, Object&gt;();
+                job.put(<span class="hljs-string">&quot;id&quot;</span>, doc.getString(<span class="hljs-string">&quot;id&quot;</span>));
+                job.put(<span class="hljs-string">&quot;company_name&quot;</span>, doc.getString(<span class="hljs-string">&quot;company_name&quot;</span>));
+                job.put(<span class="hljs-string">&quot;provice&quot;</span>, doc.getString(<span class="hljs-string">&quot;provice&quot;</span>));
+                job.put(<span class="hljs-string">&quot;city&quot;</span>, doc.getString(<span class="hljs-string">&quot;city&quot;</span>));
+                job.put(<span class="hljs-string">&quot;job_name&quot;</span>, doc.getString(<span class="hljs-string">&quot;job_name&quot;</span>));
+                job.put(<span class="hljs-string">&quot;weight&quot;</span>, doc.getString(<span class="hljs-string">&quot;weight&quot;</span>));
+                job.put(<span class="hljs-string">&quot;image&quot;</span>, doc.getString(<span class="hljs-string">&quot;image&quot;</span>));
+                String skill = doc.getString(<span class="hljs-string">&quot;skills&quot;</span>);
+                job.put(<span class="hljs-string">&quot;skills&quot;</span>, skill);
+                getAllSKills(allSkills, skill.split(<span class="hljs-string">&quot;,&quot;</span>));
+                allJobs.add(job);
+            }
+        }
+
+        FastByIDMap&lt;PreferenceArray&gt; userData = <span class="hljs-keyword">new</span> FastByIDMap&lt;&gt;();
+        <span class="hljs-keyword">for</span> (Map&lt;String, Object&gt; m : allJobs) {
+            <span class="hljs-keyword">int</span> id = Integer.parseInt((String)m.get(<span class="hljs-string">&quot;id&quot;</span>));
+            String[] weight = ((String)m.get(<span class="hljs-string">&quot;weight&quot;</span>)).split(<span class="hljs-string">&quot;,&quot;</span>);
+            String[] skill = ((String)m.get(<span class="hljs-string">&quot;skills&quot;</span>)).split(<span class="hljs-string">&quot;,&quot;</span>);
+            <span class="hljs-keyword">int</span>[] ids = getSkillsId(allSkills, skill);
+            GenericPreference[] genericPreferences = <span class="hljs-keyword">new</span> GenericPreference[ids.length];
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; genericPreferences.length; i++) {
+                genericPreferences[i] = <span class="hljs-keyword">new</span> GenericPreference(id, ids[i], Float.parseFloat(weight[i]));
+            }
+            userData.put(id, <span class="hljs-keyword">new</span> GenericUserPreferenceArray(Arrays.asList(genericPreferences)));
+        }
+        <span class="hljs-keyword">int</span>[] ids2 = getSkillsId(allSkills, skills);
+        GenericPreference[] genericPreferences2 = <span class="hljs-keyword">new</span> GenericPreference[ids2.length];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; genericPreferences2.length; i++) {
+            genericPreferences2[i] = <span class="hljs-keyword">new</span> GenericPreference(<span class="hljs-number">0</span>, ids2[i], Float.parseFloat(weights[i])/<span class="hljs-number">12</span>);
+        }
+        userData.put(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> GenericUserPreferenceArray(Arrays.asList(genericPreferences2)));
+
+        DataModel dataModel = <span class="hljs-keyword">new</span> GenericDataModel(userData);
+        <span class="hljs-keyword">try</span> {
+            UserSimilarity userSimilarity = <span class="hljs-keyword">new</span> EuclideanDistanceSimilarity(dataModel);
+            NearestNUserNeighborhood nearestNUserNeighborhood = <span class="hljs-keyword">new</span> NearestNUserNeighborhood(number, userSimilarity, dataModel);
+            List&lt;List&lt;RaderObj&gt;&gt; raderList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+            List&lt;List&lt;Double&gt;&gt; valueList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+            List&lt;Map&lt;String, Object&gt;&gt; jobList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+            <span class="hljs-keyword">long</span>[] idss = nearestNUserNeighborhood.getUserNeighborhood(<span class="hljs-number">0</span>);
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; idss.length; i++) {
+                <span class="hljs-keyword">for</span> (Map&lt;String, Object&gt; m : allJobs) {
+                    List&lt;RaderObj&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+                    List&lt;Double&gt; list2 = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+                    Map&lt;String, Object&gt; map2 = <span class="hljs-keyword">new</span> HashMap();
+                    <span class="hljs-keyword">int</span> id = Integer.parseInt((String)m.get(<span class="hljs-string">&quot;id&quot;</span>));
+                    <span class="hljs-keyword">if</span>(id == idss[i]) {
+                        String[] skill = ((String)m.get(<span class="hljs-string">&quot;skills&quot;</span>)).split(<span class="hljs-string">&quot;,&quot;</span>);
+                        String[] weight = ((String)m.get(<span class="hljs-string">&quot;weight&quot;</span>)).split(<span class="hljs-string">&quot;,&quot;</span>);
+                        <span class="hljs-keyword">for</span> (String s : skill) {
+                            RaderObj raderObj = <span class="hljs-keyword">new</span> RaderObj();
+                            raderObj.setMax(<span class="hljs-number">1</span>);
+                            raderObj.setName(s);
+                            list.add(raderObj);
+                        }
+                        <span class="hljs-keyword">for</span> (String w : weight) {
+                            list2.add(Double.parseDouble(w));
+                        }
+                        map2.put(<span class="hljs-string">&quot;location&quot;</span>, (String)m.get(<span class="hljs-string">&quot;provice&quot;</span>)+<span class="hljs-string">&quot; &quot;</span>+(String)m.get(<span class="hljs-string">&quot;city&quot;</span>));
+                        map2.put(<span class="hljs-string">&quot;jobname&quot;</span>, (String)m.get(<span class="hljs-string">&quot;job_name&quot;</span>));
+                        map2.put(<span class="hljs-string">&quot;companyname&quot;</span>, (String)m.get(<span class="hljs-string">&quot;company_name&quot;</span>));
+                        raderList.add(list);
+                        valueList.add(list2);
+                        jobList.add(map2);
+                    }
+                }
+            }
+            map.put(<span class="hljs-string">&quot;rader&quot;</span>, raderList);
+            map.put(<span class="hljs-string">&quot;value&quot;</span>, valueList);
+            map.put(<span class="hljs-string">&quot;job&quot;</span>, jobList);
+        } <span class="hljs-keyword">catch</span> (TasteException e) {
+            <span class="hljs-comment">// TODO Auto-generated catch block</span>
+            e.printStackTrace();
+        }
+
+        <span class="hljs-keyword">return</span> map;
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title">getAllSKills</span><span class="hljs-params">(ArrayList&lt;String&gt; list, String[] skills)</span> </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; skills.length; i++) {
+            String value = skills[i].trim().toLowerCase();
+            <span class="hljs-keyword">int</span> index = list.indexOf(value);
+            <span class="hljs-keyword">if</span>(index == -<span class="hljs-number">1</span>) {
+                list.add(value);
+            }
+        }
+        <span class="hljs-keyword">return</span> list;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span>[] getSkillsId(ArrayList&lt;String&gt; list, String[] skills) {
+        <span class="hljs-keyword">int</span>[] ids = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[skills.length];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; skills.length; i++) {
+            String value = skills[i].trim().toLowerCase();
+            <span class="hljs-keyword">int</span> index = list.indexOf(value);
+            ids[i] = index;
+        }
+        <span class="hljs-keyword">return</span> ids;
+    }
+</code></pre>
+
                                 
                                 </section>
                             
@@ -331,7 +491,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"岗位推荐","level":"1.2.4","depth":2,"next":{"title":"岗位分级聚类","level":"1.2.5","depth":2,"path":"岗位分级聚类.md","ref":"岗位分级聚类.md","articles":[]},"previous":{"title":"岗位聚类","level":"1.2.3","depth":2,"path":"岗位聚类.md","ref":"岗位聚类.md","articles":[]},"dir":"neutral"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"岗位推荐.md","mtime":"2020-01-27T09:23:55.747Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-27T10:22:29.178Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"岗位推荐","level":"1.2.5","depth":2,"next":{"title":"岗位分级聚类","level":"1.2.6","depth":2,"path":"岗位分级聚类.md","ref":"岗位分级聚类.md","articles":[]},"previous":{"title":"岗位聚类","level":"1.2.4","depth":2,"path":"岗位聚类.md","ref":"岗位聚类.md","articles":[]},"dir":"ltr"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"岗位推荐.md","mtime":"2020-04-05T09:17:18.807Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-04-05T09:39:08.380Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
