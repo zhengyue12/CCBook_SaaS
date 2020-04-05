@@ -128,7 +128,20 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.2.1" data-path="数据爬取.html">
+        <li class="chapter " data-level="1.2.1" data-path="Hbase建表.html">
+            
+                <a href="Hbase建表.html">
+            
+                    
+                    Hbase建表
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="数据爬取.html">
             
                 <a href="数据爬取.html">
             
@@ -141,7 +154,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.2" data-path="数据清洗.html">
+        <li class="chapter " data-level="1.2.3" data-path="数据清洗.html">
             
                 <a href="数据清洗.html">
             
@@ -154,7 +167,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.2.3" data-path="岗位聚类.html">
+        <li class="chapter active" data-level="1.2.4" data-path="岗位聚类.html">
             
                 <a href="岗位聚类.html">
             
@@ -167,7 +180,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.4" data-path="岗位推荐.html">
+        <li class="chapter " data-level="1.2.5" data-path="岗位推荐.html">
             
                 <a href="岗位推荐.html">
             
@@ -180,7 +193,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.5" data-path="岗位分级聚类.html">
+        <li class="chapter " data-level="1.2.6" data-path="岗位分级聚类.html">
             
                 <a href="岗位分级聚类.html">
             
@@ -288,7 +301,237 @@
     
                                 <section class="normal markdown-section">
                                 
-                                
+                                <h4 id="jobclusterservicejava">JobClusterService.java</h4>
+<pre><code class="lang-java">    <span class="hljs-function"><span class="hljs-keyword">public</span> ServiceState <span class="hljs-title">process</span><span class="hljs-params">()</span> </span>{<span class="hljs-comment">/////</span>
+        isTaskDone.set(<span class="hljs-keyword">false</span>);
+        List&lt;Map&lt;String, Object&gt;&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        MongoClient mongo = mongodbstorage.setUp();
+        JobCluster cluster = <span class="hljs-keyword">new</span> JobCluster();
+        String jsonContext = ReadFile.ReadFile(System.getProperty(<span class="hljs-string">&quot;user.dir&quot;</span>)+<span class="hljs-string">&quot;/configuration/job_industry_skills.json&quot;</span>);
+        JSONObject jsonObject = <span class="hljs-keyword">new</span> JSONObject(jsonContext);
+        JSONArray jsonArray = jsonObject.getJSONArray(<span class="hljs-string">&quot;industry&quot;</span>);
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; jsonArray.length(); i++) {
+            Map&lt;String, Object&gt; map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+            JSONObject industry = jsonArray.getJSONObject(i);
+            String[] id = industry.getString(<span class="hljs-string">&quot;industry-id&quot;</span>).split(<span class="hljs-string">&quot;_&quot;</span>);
+            map.put(<span class="hljs-string">&quot;industry-id&quot;</span>, id[<span class="hljs-number">1</span>]);
+            String[] category = industry.getString(<span class="hljs-string">&quot;category&quot;</span>).split(<span class="hljs-string">&quot;,&quot;</span>);
+            List&lt;String&gt; cList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+            <span class="hljs-keyword">for</span> (String c : category) {
+                cList.add(c);
+            }
+            map.put(<span class="hljs-string">&quot;category&quot;</span>, cList);
+            String[] skills = industry.getString(<span class="hljs-string">&quot;skills&quot;</span>).split(<span class="hljs-string">&quot;,&quot;</span>);
+            List&lt;String&gt; sList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+            <span class="hljs-keyword">for</span> (String s : skills) {
+                sList.add(s);
+            }
+            map.put(<span class="hljs-string">&quot;skills&quot;</span>, sList);
+            list.add(map);
+        }
+        <span class="hljs-keyword">for</span> (Map&lt;String, Object&gt; m : list) {
+            String id = (String)m.get(<span class="hljs-string">&quot;industry-id&quot;</span>);
+            List&lt;String&gt; category = (List&lt;String&gt;)m.get(<span class="hljs-string">&quot;category&quot;</span>);
+            <span class="hljs-keyword">for</span> (String c : category) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; clusterCount.length; i++) {
+                    cluster.cluster(id, c, (List&lt;String&gt;)m.get(<span class="hljs-string">&quot;skills&quot;</span>), clusterCount[i], mongo);
+                }
+            }
+        }
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-keyword">new</span> HbaseStatistics().doDataStatistics();
+        } <span class="hljs-keyword">catch</span> (IOException e) {
+            <span class="hljs-comment">// TODO Auto-generated catch block</span>
+            e.printStackTrace();
+        } <span class="hljs-keyword">finally</span> {
+            isTaskDone.set(<span class="hljs-keyword">true</span>);
+        }
+        <span class="hljs-keyword">return</span> ServiceState.STATE_RUNNING;
+    }
+</code></pre>
+<h4 id="hbasestatisticsjava">HbaseStatistics.java</h4>
+<pre><code class="lang-java">    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Properties eduProperties = UtilTools.getConfig(System.getProperty(<span class="hljs-string">&quot;user.dir&quot;</span>) +    <span class="hljs-string">&quot;/configuration/job_education.properties&quot;</span>);
+    <span class="hljs-keyword">private</span> Map&lt;String, String&gt; edus = <span class="hljs-keyword">new</span> HashMap&lt;String, String&gt;();
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HbaseStatistics</span><span class="hljs-params">()</span> </span>{
+        &#x2026;&#x2026;
+        String[] edu = eduProperties.getProperty(<span class="hljs-string">&quot;education&quot;</span>).split(<span class="hljs-string">&quot;,&quot;</span>);
+        <span class="hljs-keyword">for</span> (String e : edu) {
+            edus.put(e, e);
+        }
+    }  <span class="hljs-comment">//&#xFF08;&#x8FD9;&#x91CC;&#x662F;&#x56E0;&#x4E3A;&#x9879;&#x76EE;&#x662F;&#x6BD4;&#x8F83;&#x8001;&#x7684;&#x539F;&#x56E0;&#xFF0C;&#x9700;&#x8981;&#x52A0;&#x4E0A;&#x4EE5;&#x4E0A;&#x5185;&#x5BB9;&#x624D;&#x80FD;&#x6B63;&#x5E38;&#x663E;&#x793A;&#x5B66;&#x5386;&#x76F8;&#x5173;&#x4FE1;&#x606F;&#xFF09;</span>
+
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">countEducationDistribution</span><span class="hljs-params">(String tableName, String mongoTable,     String family)</span> <span class="hljs-keyword">throws</span> SQLException, IOException </span>{<span class="hljs-comment">/////</span>
+        MongoClient mongoClient = mongodbstorage.setUp();
+        <span class="hljs-comment">// String sql = &quot;select LOCATION,count(1) as count,sum(AMOUNT) from &quot; +</span>
+        <span class="hljs-comment">// tableName</span>
+        <span class="hljs-comment">// + &quot; where ISPERCEPTED = &apos;no&apos; group by LOCATION order by count desc&quot;;</span>
+        <span class="hljs-comment">// ResultSet results = stmt.executeQuery(sql);</span>
+
+        <span class="hljs-comment">// &#x5EFA;&#x7ACB;&#x8868;&#x7684;&#x8FDE;&#x63A5;</span>
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        <span class="hljs-comment">// &#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x7A7A;&#x7684;Scan&#x5B9E;&#x4F8B;</span>
+        Scan scan1 = <span class="hljs-keyword">new</span> Scan();
+        <span class="hljs-comment">// &#x53EF;&#x4EE5;&#x6307;&#x5B9A;&#x5177;&#x4F53;&#x7684;&#x5217;&#x65CF;&#x5217;</span>
+        scan1.addColumn(Bytes.toBytes(family), Bytes.toBytes(<span class="hljs-string">&quot;EDUCATION&quot;</span>)).addColumn(Bytes.toBytes(family),
+                Bytes.toBytes(<span class="hljs-string">&quot;AMOUNT&quot;</span>));
+        scan1.setCaching(<span class="hljs-number">60</span>);
+        scan1.setMaxResultSize(<span class="hljs-number">1</span> * <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>); <span class="hljs-comment">// 100k &#xFF08;MB1 * 1024 * 1024&#xFF09;</span>
+        scan1.setFilter(<span class="hljs-keyword">new</span> PageFilter(<span class="hljs-number">1000</span>));
+
+        <span class="hljs-comment">// &#x5728;&#x884C;&#x4E0A;&#x83B7;&#x53D6;&#x904D;&#x5386;&#x5668;</span>
+        ResultScanner scanner1 = table.getScanner(scan1);
+
+        Map map = mongodbstorage.create(mongoTable, <span class="hljs-string">&quot;job_education_distribution&quot;</span>, mongoClient);<span class="hljs-comment">// mongodb&#x96C6;&#x5408;,key,value</span>
+        MongoCollection&lt;Document&gt; collection = (MongoCollection&lt;Document&gt;) map.get(<span class="hljs-string">&quot;collection&quot;</span>);
+        Document document = (Document) map.get(<span class="hljs-string">&quot;document&quot;</span>);
+        SimpleDateFormat sdf = <span class="hljs-keyword">new</span> SimpleDateFormat(<span class="hljs-string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);
+        java.util.Date date = <span class="hljs-keyword">new</span> java.util.Date();
+        String da = sdf.format(date);
+        mongodbstorage.appendString(document, <span class="hljs-string">&quot;date&quot;</span>, da);
+        <span class="hljs-keyword">int</span>[] cu = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[<span class="hljs-number">34</span>];
+        <span class="hljs-keyword">int</span>[] nu = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[<span class="hljs-number">34</span>];
+        Vector&lt;Document&gt; vec = <span class="hljs-keyword">new</span> Vector&lt;Document&gt;();
+        <span class="hljs-keyword">for</span> (Result res : scanner1) {
+            String loc = (<span class="hljs-keyword">new</span> String(CellUtil.cloneValue(res.rawCells()[<span class="hljs-number">1</span>]))).split(<span class="hljs-string">&quot;-&quot;</span>)[<span class="hljs-number">0</span>];
+            <span class="hljs-keyword">int</span> total = Integer.parseInt(<span class="hljs-keyword">new</span> String(CellUtil.cloneValue(res.rawCells()[<span class="hljs-number">0</span>])));
+            <span class="hljs-keyword">int</span> num = <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">if</span> (!edus.containsKey(loc)) {
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-comment">// String prov = jobanalysisreposity.appendProvinceDistribution(document, loc,</span>
+                <span class="hljs-comment">// total, mongoClient);</span>
+                String prov = edus.get(loc);
+                <span class="hljs-keyword">switch</span> (prov) {
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x521D;&#x4E2D;&quot;</span>:
+                    cu[<span class="hljs-number">0</span>] += total;
+                    nu[<span class="hljs-number">0</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x9AD8;&#x4E2D;&quot;</span>:
+                    cu[<span class="hljs-number">1</span>] += total;
+                    nu[<span class="hljs-number">1</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x4E2D;&#x6280;&quot;</span>:
+                    cu[<span class="hljs-number">2</span>] += total;
+                    nu[<span class="hljs-number">2</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x4E2D;&#x4E13;&quot;</span>:
+                    cu[<span class="hljs-number">3</span>] += total;
+                    nu[<span class="hljs-number">3</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x5927;&#x4E13;&quot;</span>:
+                    cu[<span class="hljs-number">4</span>] += total;
+                    nu[<span class="hljs-number">4</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x672C;&#x79D1;&quot;</span>:
+                    cu[<span class="hljs-number">5</span>] += total;
+                    nu[<span class="hljs-number">5</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x7855;&#x58EB;&quot;</span>:
+                    cu[<span class="hljs-number">6</span>] += total;
+                    nu[<span class="hljs-number">6</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x535A;&#x58EB;&quot;</span>:
+                    cu[<span class="hljs-number">7</span>] += total;
+                    nu[<span class="hljs-number">7</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;&#x4E0D;&#x9650;&quot;</span>:
+                    cu[<span class="hljs-number">8</span>] += total;
+                    nu[<span class="hljs-number">8</span>] += num;
+                    <span class="hljs-keyword">break</span>;
+                }
+            }
+            logger.info(loc + <span class="hljs-string">&quot;:&quot;</span> + total);
+        }
+        Document[] doc = <span class="hljs-keyword">new</span> Document[<span class="hljs-number">9</span>];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt;= <span class="hljs-number">8</span>; i++) {
+            doc[i] = <span class="hljs-keyword">new</span> Document();
+        }
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;&#x521D;&#x4E2D;&quot;</span>, cu[<span class="hljs-number">0</span>], nu[<span class="hljs-number">0</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;&#x9AD8;&#x4E2D;&quot;</span>, cu[<span class="hljs-number">1</span>], nu[<span class="hljs-number">1</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">2</span>], <span class="hljs-string">&quot;&#x4E2D;&#x6280;&quot;</span>, cu[<span class="hljs-number">2</span>], nu[<span class="hljs-number">2</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">3</span>], <span class="hljs-string">&quot;&#x4E2D;&#x4E13;&quot;</span>, cu[<span class="hljs-number">3</span>], nu[<span class="hljs-number">3</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">4</span>], <span class="hljs-string">&quot;&#x5927;&#x4E13;&quot;</span>, cu[<span class="hljs-number">4</span>], nu[<span class="hljs-number">4</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">5</span>], <span class="hljs-string">&quot;&#x672C;&#x79D1;&quot;</span>, cu[<span class="hljs-number">5</span>], nu[<span class="hljs-number">5</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">6</span>], <span class="hljs-string">&quot;&#x7855;&#x58EB;&quot;</span>, cu[<span class="hljs-number">6</span>], nu[<span class="hljs-number">6</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">7</span>], <span class="hljs-string">&quot;&#x535A;&#x58EB;&quot;</span>, cu[<span class="hljs-number">7</span>], nu[<span class="hljs-number">7</span>]);
+        mongodbstorage.appendProvince(doc[<span class="hljs-number">8</span>], <span class="hljs-string">&quot;&#x4E0D;&#x9650;&quot;</span>, cu[<span class="hljs-number">8</span>], nu[<span class="hljs-number">8</span>]);
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt;= <span class="hljs-number">8</span>; i++) {
+            vec.add(doc[i]);
+        }
+        mongodbstorage.appendArray(document, <span class="hljs-string">&quot;category&quot;</span>, vec);
+        mongodbstorage.insertOne(collection, document);
+    }
+</code></pre>
+<h4 id="jobclusterjava">JobCLuster.java</h4>
+<pre><code class="lang-java">    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Integer&gt; <span class="hljs-title">kMeans</span><span class="hljs-params">(List&lt;<span class="hljs-keyword">double</span>[]&gt; des1, <span class="hljs-keyword">int</span> cluster)</span> </span>{
+        String master = sparkProperties.getProperty(<span class="hljs-string">&quot;spark_master&quot;</span>);
+        SparkConf conf = <span class="hljs-keyword">new</span> SparkConf().setMaster(master).setAppName(<span class="hljs-string">&quot;JobCluster&quot;</span>);
+        JavaSparkContext jsc = <span class="hljs-keyword">new</span> JavaSparkContext(conf);
+        List&lt;Vector&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; des1.size(); i++) {
+            Vector vc = Vectors.dense(des1.get(i));
+            list.add(vc);
+        }
+        JavaRDD&lt;Vector&gt; data = jsc.parallelize(list);
+        <span class="hljs-keyword">int</span> clusterIteartor = <span class="hljs-number">5000</span>;
+        <span class="hljs-keyword">int</span> runs = <span class="hljs-number">300</span>;
+        KMeansModel km = KMeans.train(data.rdd(), cluster, clusterIteartor, runs);
+        JavaRDD&lt;Integer&gt; kmResult = km.predict(data);
+        km.clusterCenters();
+        List&lt;Integer&gt; collect = kmResult.collect();
+        List&lt;Integer&gt; indexs = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        <span class="hljs-keyword">for</span> (Integer c : collect) {
+            indexs.add(c);
+        }
+        jsc.close();
+        <span class="hljs-keyword">return</span> indexs;
+    }
+</code></pre>
+<h4 id="&#x8FD0;&#x884C;&#x65F6;&#xFF0C;&#x6CE8;&#x610F;&#x5728;jobanalysisservicejava&#x4E2D;&#x6CE8;&#x91CA;&#x6389;&#x4E0D;&#x542F;&#x7528;&#x7684;&#x670D;&#x52A1;">&#x8FD0;&#x884C;&#x65F6;&#xFF0C;&#x6CE8;&#x610F;&#x5728;JobAnalysisService.java&#x4E2D;&#x6CE8;&#x91CA;&#x6389;&#x4E0D;&#x542F;&#x7528;&#x7684;&#x670D;&#x52A1;</h4>
+<pre><code class="lang-java">    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ServiceState <span class="hljs-title">start</span><span class="hljs-params">()</span> </span>{
+
+<span class="hljs-comment">//         1. &#x542F;&#x52A8;&#x6536;&#x96C6;&#x670D;&#x52A1;&#xFF08;&#x866B;&#xFF09;</span>
+<span class="hljs-comment">//        Service jobCollector = new JobCollectService(server, this);</span>
+<span class="hljs-comment">//        jobCollector.start();</span>
+<span class="hljs-comment">//        // 2. &#x542F;&#x52A8;&#x6E05;&#x6D17;&#x670D;&#x52A1;&#xFF08;&#x6E05;&#x6D17;&#xFF09;</span>
+<span class="hljs-comment">//        Service jobCleaner = new JobCleanService(server, this);</span>
+<span class="hljs-comment">//        jobCleaner.start();</span>
+<span class="hljs-comment">//        // 3. &#x542F;&#x52A8;&#x5206;&#x6790;&#x670D;&#x52A1;&#xFF08;&#x805A;&#x7C7B;&#xFF09;</span>
+        Service jobCluster = <span class="hljs-keyword">new</span> JobClusterService(server, <span class="hljs-keyword">this</span>);
+        jobCluster.start();
+        <span class="hljs-keyword">return</span> ServiceState.STATE_RUNNING;
+    }
+</code></pre>
+<h4 id="&#x805A;&#x7C7B;&#x5B8C;&#x6210;&#x540E;&#xFF0C;&#x9700;&#x8981;&#x8FDB;&#x5165;xueqing-client&#x9879;&#x76EE;&#x627E;&#x5230;leanringcontroller&#x7C7B;&#x3002;&#x6CE8;&#x91CA;&#x6389;&#x76F8;&#x5173;&#x7684;&#x4EE3;&#x7801;&#x7247;&#x6BB5;&#xFF0C;&#x6CE8;&#x91CA;&#x539F;&#x56E0;&#x53EF;&#x4EE5;&#x81EA;&#x884C;&#x5BF9;&#x7167;mongodb&#x7684;&#x6570;&#x636E;&#x3002;">&#x805A;&#x7C7B;&#x5B8C;&#x6210;&#x540E;&#xFF0C;&#x9700;&#x8981;&#x8FDB;&#x5165;xueqing-client&#x9879;&#x76EE;&#x627E;&#x5230;LeanringController&#x7C7B;&#x3002;&#x6CE8;&#x91CA;&#x6389;&#x76F8;&#x5173;&#x7684;&#x4EE3;&#x7801;&#x7247;&#x6BB5;&#xFF0C;&#x6CE8;&#x91CA;&#x539F;&#x56E0;&#x53EF;&#x4EE5;&#x81EA;&#x884C;&#x5BF9;&#x7167;MongoDB&#x7684;&#x6570;&#x636E;&#x3002;</h4>
+<pre><code class="lang-java">    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">&quot;/gwechart&quot;</span>)
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> MessageBean <span class="hljs-title">getgwEchartsData</span><span class="hljs-params">(String id)</span> </span>{
+        Map&lt;String, Object&gt; map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+        <span class="hljs-comment">// &#x5730;&#x533A;&#x5206;&#x5E03;</span>
+        Map&lt;String, Object&gt; echartsObjs1 = jobAnalysisReposity.getMap(mongoClient, id, province);
+        map.put(<span class="hljs-string">&quot;province&quot;</span>, echartsObjs1);
+        <span class="hljs-comment">// &#x85AA;&#x8D44;</span>
+<span class="hljs-comment">//        Map&lt;String, Object&gt; map1 = jobAnalysisReposity.getSalary(mongoClient, id, salary);</span>
+<span class="hljs-comment">//        map.put(&quot;salary&quot;, map1);</span>
+        <span class="hljs-comment">// &#x5B66;&#x5386;</span>
+        List&lt;EchartsObj&gt; echartsObjs2 = jobAnalysisReposity.getEducation(mongoClient, id, education);
+        map.put(<span class="hljs-string">&quot;education&quot;</span>, echartsObjs2);
+        <span class="hljs-comment">// &#x7ECF;&#x9A8C;</span>
+<span class="hljs-comment">//        List&lt;EchartsObj&gt; echartsObjs3 = jobAnalysisReposity.getExperience(mongoClient, id, experience);</span>
+<span class="hljs-comment">//        map.put(&quot;experience&quot;, echartsObjs3);</span>
+        <span class="hljs-comment">// &#x6027;&#x8D28;</span>
+<span class="hljs-comment">//        Map&lt;String, Object&gt; map2 = jobAnalysisReposity.getNature(mongoClient, id, nature);</span>
+<span class="hljs-comment">//        map.put(&quot;nature&quot;, map2);</span>
+        <span class="hljs-comment">// &#x89C4;&#x6A21;</span>
+<span class="hljs-comment">//        Map&lt;String, Object&gt; map3 = jobAnalysisReposity.getScale(mongoClient, id, scale);</span>
+<span class="hljs-comment">//        map.put(&quot;scale&quot;, map3);</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MessageBean(<span class="hljs-keyword">true</span>, <span class="hljs-string">&quot;&quot;</span>, map);
+
+    }
+</code></pre>
+
                                 
                                 </section>
                             
@@ -331,7 +574,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"岗位聚类","level":"1.2.3","depth":2,"next":{"title":"岗位推荐","level":"1.2.4","depth":2,"path":"岗位推荐.md","ref":"岗位推荐.md","articles":[]},"previous":{"title":"数据清洗","level":"1.2.2","depth":2,"path":"数据清洗.md","ref":"数据清洗.md","articles":[]},"dir":"neutral"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"岗位聚类.md","mtime":"2020-01-27T09:23:36.047Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-27T10:22:29.178Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"岗位聚类","level":"1.2.4","depth":2,"next":{"title":"岗位推荐","level":"1.2.5","depth":2,"path":"岗位推荐.md","ref":"岗位推荐.md","articles":[]},"previous":{"title":"数据清洗","level":"1.2.3","depth":2,"path":"数据清洗.md","ref":"数据清洗.md","articles":[]},"dir":"ltr"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"岗位聚类.md","mtime":"2020-04-05T09:17:18.807Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-04-05T09:39:08.380Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>

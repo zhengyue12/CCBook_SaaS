@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>大数据开发部分 · 云计算SaaS部分</title>
+        <title>Hbase建表 · 云计算SaaS部分</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -58,10 +58,10 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="Hbase建表.html" />
+    <link rel="next" href="数据爬取.html" />
     
     
-    <link rel="prev" href="./" />
+    <link rel="prev" href="大数据开发部分.html" />
     
 
     <style>
@@ -114,7 +114,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.2" data-path="大数据开发部分.html">
+        <li class="chapter " data-level="1.2" data-path="大数据开发部分.html">
             
                 <a href="大数据开发部分.html">
             
@@ -128,7 +128,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.2.1" data-path="Hbase建表.html">
+        <li class="chapter active" data-level="1.2.1" data-path="Hbase建表.html">
             
                 <a href="Hbase建表.html">
             
@@ -286,7 +286,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="." >大数据开发部分</a>
+        <a href="." >Hbase建表</a>
     </h1>
 </div>
 
@@ -301,16 +301,23 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h2 id="&#x5927;&#x6570;&#x636E;&#x5F00;&#x53D1;&#x90E8;&#x5206;&#xFF1A;">&#x5927;&#x6570;&#x636E;&#x5F00;&#x53D1;&#x90E8;&#x5206;&#xFF1A;</h2>
-<h3 id="&#x524D;&#x671F;&#x51C6;&#x5907;&#xFF1A;">&#x524D;&#x671F;&#x51C6;&#x5907;&#xFF1A;</h3>
-<h4 id="1&#x542F;&#x52A8;hadoop&#x3001;zookeeper&#x3001;hbase&#x3001;mongodb&#x3001;mysql&#x670D;&#x52A1;&#x3002;">1.&#x542F;&#x52A8;Hadoop&#x3001;zookeeper&#x3001;hbase&#x3001;mongodb&#x3001;MySQL&#x670D;&#x52A1;&#x3002;</h4>
-<h4 id="2&#x66F4;&#x6539;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x670D;&#x52A1;&#x76F8;&#x5173;&#x4E3B;&#x673A;&#x540D;&#x3002;&#xFF08;&#x5177;&#x4F53;&#x89C1;&#x5148;&#x7535;&#x4E91;&#x8BA1;&#x7B97;&#x8F6F;&#x4EF6;&#x670D;&#x52A1;-&#x5927;&#x6570;&#x636E;&#x5F00;&#x53D1;-xiandian-saas-bigdata-v222doc">2.&#x66F4;&#x6539;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x670D;&#x52A1;&#x76F8;&#x5173;&#x4E3B;&#x673A;&#x540D;&#x3002;&#xFF08;&#x5177;&#x4F53;&#x89C1;<u>&#x5148;&#x7535;&#x4E91;&#x8BA1;&#x7B97;&#x8F6F;&#x4EF6;&#x670D;&#x52A1;-&#x5927;&#x6570;&#x636E;&#x5F00;&#x53D1;-XianDian-SaaS-Bigdata-V2.2.2.doc</u>)</h4>
-<h3 id="&#x76F8;&#x5173;&#x5185;&#x5BB9;&#xFF1A;">&#x76F8;&#x5173;&#x5185;&#x5BB9;&#xFF1A;</h3>
-<h3 id="1&#x6570;&#x636E;&#x91C7;&#x96C6;&#x4E3B;&#x8981;&#x662F;&#x4F7F;&#x7528;&#x7684;web-magic&#xFF0C;webmagic&#x662F;&#x4E00;&#x4E2A;&#x7B80;&#x5355;&#x7075;&#x6D3B;&#x7684;java&#x722C;&#x866B;&#x6846;&#x67B6;&#x3002;">1.&#x6570;&#x636E;&#x91C7;&#x96C6;&#x4E3B;&#x8981;&#x662F;&#x4F7F;&#x7528;&#x7684;<a href="http://webmagic.io/" target="_blank">Web Magic</a>&#xFF0C;WebMagic&#x662F;&#x4E00;&#x4E2A;&#x7B80;&#x5355;&#x7075;&#x6D3B;&#x7684;Java&#x722C;&#x866B;&#x6846;&#x67B6;&#x3002;</h3>
-<h3 id="2&#x6570;&#x636E;&#x6E05;&#x6D17;&#x662F;&#x505A;&#x4E86;&#x4E00;&#x4E9B;&#x5B57;&#x7B26;&#x4E32;&#x89C4;&#x8303;&#x5904;&#x7406;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x5177;&#x4F53;&#x770B;&#x5B9E;&#x9645;&#x4EE3;&#x7801;&#x3002;">2.&#x6570;&#x636E;&#x6E05;&#x6D17;&#x662F;&#x505A;&#x4E86;&#x4E00;&#x4E9B;&#x5B57;&#x7B26;&#x4E32;&#x89C4;&#x8303;&#x5904;&#x7406;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x5177;&#x4F53;&#x770B;&#x5B9E;&#x9645;&#x4EE3;&#x7801;&#x3002;</h3>
-<h3 id="3&#x5C97;&#x4F4D;&#x805A;&#x7C7B;&#x7528;&#x5230;&#x4E86;spark&#x5927;&#x6570;&#x636E;&#x6846;&#x67B6;&#x7684;kmeans&#x805A;&#x7C7B;&#x7B97;&#x6CD5;&#xFF0C;&#x80FD;&#x591F;&#x8C03;&#x7528;&#x76F8;&#x5173;&#x7684;api&#x5373;&#x53EF;&#x3002;">3.&#x5C97;&#x4F4D;&#x805A;&#x7C7B;&#x7528;&#x5230;&#x4E86;<a href="http://spark.apache.org/" target="_blank">Spark</a>&#x5927;&#x6570;&#x636E;&#x6846;&#x67B6;&#x7684;Kmeans&#x805A;&#x7C7B;&#x7B97;&#x6CD5;&#xFF0C;&#x80FD;&#x591F;&#x8C03;&#x7528;&#x76F8;&#x5173;&#x7684;Api&#x5373;&#x53EF;&#x3002;</h3>
-<h3 id="4&#x5C97;&#x4F4D;&#x63A8;&#x8350;&#x662F;mahout&#x63A8;&#x8350;&#x5668;&#x7684;&#x5E94;&#x7528;&#xFF0C;&#x4E0D;&#x9700;&#x8981;&#x5B8C;&#x6210;&#x7406;&#x89E3;&#xFF0C;&#x540C;&#x6837;&#x80FD;&#x8C03;&#x7528;api&#x5373;&#x53EF;&#x3002;">4.&#x5C97;&#x4F4D;&#x63A8;&#x8350;&#x662F;<a href="http://mahout.apache.org/" target="_blank">Mahout</a>&#x63A8;&#x8350;&#x5668;&#x7684;&#x5E94;&#x7528;&#xFF0C;&#x4E0D;&#x9700;&#x8981;&#x5B8C;&#x6210;&#x7406;&#x89E3;&#xFF0C;&#x540C;&#x6837;&#x80FD;&#x8C03;&#x7528;Api&#x5373;&#x53EF;&#x3002;</h3>
-<h4 id="&#x6CE8;&#x610F;&#xFF1A;&#x4EE5;&#x4E0B;&#x4EE3;&#x7801;&#x662F;&#x6211;&#x548C;&#x53E6;&#x4E00;&#x4E2A;&#x5B66;&#x957F;&#x4E00;&#x8D77;&#x8BA8;&#x8BBA;&#x4F18;&#x5316;&#x540E;&#x7684;&#x4EE3;&#x7801;&#xFF0C;&#x6700;&#x597D;&#x662F;&#x81EA;&#x5DF1;&#x770B;&#x539F;&#x7B54;&#x6848;&#x81EA;&#x884C;&#x4F18;&#x5316;&#xFF0C;&#x8FD9;&#x6837;&#x5370;&#x8C61;&#x4F1A;&#x6DF1;&#x523B;&#x4E00;&#x4E9B;&#x3002;">&#x6CE8;&#x610F;&#xFF1A;&#x4EE5;&#x4E0B;&#x4EE3;&#x7801;&#x662F;&#x6211;&#x548C;&#x53E6;&#x4E00;&#x4E2A;&#x5B66;&#x957F;&#x4E00;&#x8D77;&#x8BA8;&#x8BBA;&#x4F18;&#x5316;&#x540E;&#x7684;&#x4EE3;&#x7801;&#xFF0C;&#x6700;&#x597D;&#x662F;&#x81EA;&#x5DF1;&#x770B;&#x539F;&#x7B54;&#x6848;&#x81EA;&#x884C;&#x4F18;&#x5316;&#xFF0C;&#x8FD9;&#x6837;&#x5370;&#x8C61;&#x4F1A;&#x6DF1;&#x523B;&#x4E00;&#x4E9B;&#x3002;</h4>
+                                <h4 id="hbasestoragejava">HBaseStorage.java</h4>
+<pre><code class="lang-java">    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createTable</span><span class="hljs-params">(String tablename,String families)</span> <span class="hljs-keyword">throws</span> IOException </span>{<span class="hljs-comment">/////</span>
+        TableName tableName2 = TableName.valueOf(tablename);
+        <span class="hljs-keyword">if</span>(!admin.tableExists(tableName2)) {
+            logger.info(<span class="hljs-string">&quot;&#x5F00;&#x59CB;&#x5EFA;&#x8868;&quot;</span>);
+            HTableDescriptor hTableDescriptor = <span class="hljs-keyword">new</span> HTableDescriptor(tableName2);
+            <span class="hljs-keyword">for</span>(String f : families.split(<span class="hljs-string">&quot;,&quot;</span>)) {
+                HColumnDescriptor hColumnDescriptor = <span class="hljs-keyword">new</span> HColumnDescriptor(f);
+                hTableDescriptor.addFamily(hColumnDescriptor);
+            }
+            admin.createTable(hTableDescriptor);
+            logger.info(<span class="hljs-string">&quot;&#x521B;&#x5EFA;&#x6210;&#x529F;&quot;</span>);
+        } <span class="hljs-keyword">else</span> {
+            logger.info(<span class="hljs-string">&quot;&#x8868;&#x4EE5;&#x5B58;&#x5728;&quot;</span>);
+        }
+    }
+</code></pre>
 
                                 
                                 </section>
@@ -338,12 +345,12 @@
 
             
                 
-                <a href="./" class="navigation navigation-prev " aria-label="Previous page: 介绍">
+                <a href="大数据开发部分.html" class="navigation navigation-prev " aria-label="Previous page: 大数据开发部分">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="Hbase建表.html" class="navigation navigation-next " aria-label="Next page: Hbase建表">
+                <a href="数据爬取.html" class="navigation navigation-next " aria-label="Next page: 数据爬取">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -354,7 +361,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"大数据开发部分","level":"1.2","depth":1,"next":{"title":"Hbase建表","level":"1.2.1","depth":2,"path":"Hbase建表.md","ref":"Hbase建表.md","articles":[]},"previous":{"title":"介绍","level":"1.1","depth":1,"path":"README.md","ref":"README.md","articles":[]},"dir":"ltr"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"大数据开发部分.md","mtime":"2020-04-05T09:17:18.806Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-04-05T09:39:08.380Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Hbase建表","level":"1.2.1","depth":2,"next":{"title":"数据爬取","level":"1.2.2","depth":2,"path":"数据爬取.md","ref":"数据爬取.md","articles":[]},"previous":{"title":"大数据开发部分","level":"1.2","depth":1,"path":"大数据开发部分.md","ref":"大数据开发部分.md","articles":[{"title":"Hbase建表","level":"1.2.1","depth":2,"path":"Hbase建表.md","ref":"Hbase建表.md","articles":[]},{"title":"数据爬取","level":"1.2.2","depth":2,"path":"数据爬取.md","ref":"数据爬取.md","articles":[]},{"title":"数据清洗","level":"1.2.3","depth":2,"path":"数据清洗.md","ref":"数据清洗.md","articles":[]},{"title":"岗位聚类","level":"1.2.4","depth":2,"path":"岗位聚类.md","ref":"岗位聚类.md","articles":[]},{"title":"岗位推荐","level":"1.2.5","depth":2,"path":"岗位推荐.md","ref":"岗位推荐.md","articles":[]},{"title":"岗位分级聚类","level":"1.2.6","depth":2,"path":"岗位分级聚类.md","ref":"岗位分级聚类.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["edit-link","github-buttons","livereload"],"root":".","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"github-buttons":{"buttons":[{"user":"zhengyue12","repo":"","type":"star","size":"small"}]},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"edit-link":{"label":"编辑此页","base":"https://github.com/USER/REPO/edit/BRANCH/path/to/book"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"zheng","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"云计算SaaS部分","language":"zh-hans","gitbook":"*","description":"SaaS部分相关答案"},"file":{"path":"Hbase建表.md","mtime":"2020-04-05T09:17:18.770Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-04-05T09:39:08.380Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
